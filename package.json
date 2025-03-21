@@ -2,6 +2,7 @@
     "name": "automated-commit",
     "version": "1.0.0",
     "description": "Automated commit and push with AI-generated quotes and weather conditions.",
+    "type": "module",
     "main": "generate_quote.js",
     "scripts": {
       "generate:quote": "node generate_quote.js",
