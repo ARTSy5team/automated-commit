@@ -31,13 +31,10 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Dependencies (Jika Ada)
+      - name: Install Dependencies
         run: |
           if [ -f "package.json" ]; then
-            echo "package.json ditemukan. Menginstal dependensi..."
             npm install
-          else
-            echo "package.json tidak ditemukan. Melewati instalasi dependensi."
           fi
 
       - name: Generate Motivational Quote (GPT-4)
@@ -49,6 +46,18 @@ jobs:
         run: node generate_weather.js
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Validate Generated Files
+        run: |
+          if [ ! -f "quote.txt" ]; then
+            echo "⚠️ File quote.txt tidak ditemukan, membuat file kosong."
+            echo "Kutipan tidak tersedia." > quote.txt
+          fi
+
+          if [ ! -f "weather.txt" ]; then
+            echo "⚠️ File weather.txt tidak ditemukan, membuat file kosong."
+            echo "Cuaca tidak tersedia." > weather.txt
+          fi
 
       - name: Generate Random Data
         run: |
@@ -81,9 +90,3 @@ jobs:
             git commit -m "$pesan_acak | $(date '+%Y-%m-%d %H:%M:%S')"
             git push origin main
           fi
-
-      - name: Push Perubahan ke GitHub
-        uses: ad-m/github-push-action@v0.6.0
-        with:
-          branch: main
-          github_token: ${{ secrets.GITHUB_TOKEN }}
