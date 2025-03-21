@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: true
-          fetch-depth: 0 
+          fetch-depth: 1
 
       - name: Setup Git Configuration
         run: |
@@ -27,12 +27,15 @@ jobs:
           git config --global user.name "ARTSy5team"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v18
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '18'
 
       - name: Install Dependencies
-        run: npm install openai
+        run: |
+          node -v
+          npm -v
+          npm ci
 
       - name: Generate Motivational Quote (GPT-4)
         run: node generate_quote.js
@@ -64,13 +67,17 @@ jobs:
 
       - name: Commit and Push Changes
         run: |
-          for i in $(seq 1 ${{ env.count }}); do
+          git add update.log random_code.py quote.txt weather.txt
+          
+          if git diff --staged --quiet; then
+            echo "Tidak ada perubahan untuk dikomit."
+          else
             pesan_commit=("Update otomatis: 🚀" "Pembaruan rutin: 🔄" "Auto-refresh: 🔥" "Optimisasi data: 📊" "Log diperbarui: 📝" "Commit berkala: ⏳")
             pesan_acak=${pesan_commit[$RANDOM % ${#pesan_commit[@]}]}
 
-            git add update.log random_code.py quote.txt weather.txt
-            git commit -m "$pesan_acak | Iterasi $i | $(date '+%Y-%m-%d %H:%M:%S')" || echo "Tidak ada perubahan."
-          done
+            git commit -m "$pesan_acak | $(date '+%Y-%m-%d %H:%M:%S')"
+            git push origin main
+          fi
 
       - name: Push Perubahan ke GitHub
         uses: ad-m/github-push-action@v0.6.0
