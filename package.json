@@ -1,0 +1,14 @@
+{
+    "name": "automated-commit",
+    "version": "1.0.0",
+    "description": "Automated commit and push with AI-generated quotes and weather conditions.",
+    "main": "generate_quote.js",
+    "scripts": {
+      "generate:quote": "node generate_quote.js",
+      "generate:weather": "node generate_weather.js"
+    },
+    "dependencies": {
+      "openai": "^4.0.0"
+    }
+  }
+  

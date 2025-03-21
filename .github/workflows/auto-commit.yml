@@ -1,0 +1,79 @@
+name: Auto Commit & Push
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 0 * * *"  # Setiap hari jam 00:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  auto_commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0 
+
+      - name: Setup Git Configuration
+        run: |
+          git config --global user.email "airdropteam5official@gmail.com"
+          git config --global user.name "ARTSy5team"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v18
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm install openai
+
+      - name: Generate Motivational Quote (GPT-4)
+        run: node generate_quote.js
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Generate Weather Condition (GPT-4)
+        run: node generate_weather.js
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Generate Random Data
+        run: |
+          TANGGAL=$(date '+%Y-%m-%d %H:%M:%S')
+          kutipan_acak=$(cat quote.txt)
+          cuaca_acak=$(cat weather.txt)
+          angka_random=$((RANDOM % 1000))
+
+          echo "Pembaruan terakhir: $TANGGAL" > update.log
+          echo "Cuaca saat ini: $cuaca_acak" >> update.log
+          echo "Kutipan hari ini: \"$kutipan_acak\"" >> update.log
+          echo "Angka keberuntungan: $angka_random" >> update.log
+
+      - name: Simulate Code Changes
+        run: |
+          FILE="random_code.py"
+          echo "# Update: $(date)" >> $FILE
+          echo "print('Hello, this is an automated update!')" >> $FILE
+
+      - name: Commit and Push Changes
+        run: |
+          for i in $(seq 1 ${{ env.count }}); do
+            pesan_commit=("Update otomatis: 🚀" "Pembaruan rutin: 🔄" "Auto-refresh: 🔥" "Optimisasi data: 📊" "Log diperbarui: 📝" "Commit berkala: ⏳")
+            pesan_acak=${pesan_commit[$RANDOM % ${#pesan_commit[@]}]}
+
+            git add update.log random_code.py quote.txt weather.txt
+            git commit -m "$pesan_acak | Iterasi $i | $(date '+%Y-%m-%d %H:%M:%S')" || echo "Tidak ada perubahan."
+          done
+
+      - name: Push Perubahan ke GitHub
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          branch: main
+          github_token: ${{ secrets.GITHUB_TOKEN }}
