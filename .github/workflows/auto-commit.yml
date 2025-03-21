@@ -31,11 +31,14 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Dependencies
+      - name: Install Dependencies (Jika Ada)
         run: |
-          node -v
-          npm -v
-          npm ci
+          if [ -f "package.json" ]; then
+            echo "package.json ditemukan. Menginstal dependensi..."
+            npm install
+          else
+            echo "package.json tidak ditemukan. Melewati instalasi dependensi."
+          fi
 
       - name: Generate Motivational Quote (GPT-4)
         run: node generate_quote.js
